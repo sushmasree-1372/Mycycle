@@ -3,7 +3,7 @@
   "short_name":"LumaCycle",
   "start_url":"./index.html",
   "display":"standalone",
-  "background_color":"#fff8f6",
-  "theme_color":"#fff8f6",
-  "description":"A friendly menstrual cycle tracker prototype with automatic cycle predictions."
+  "background_color":"#fff7fb",
+  "theme_color":"#fff7fb",
+  "description":"A dreamy period and cycle tracking prototype."
 }

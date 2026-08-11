@@ -1,20 +1,9 @@
 {
-  "name": "MyCycle",
-  "short_name": "MyCycle",
-  "start_url": "./?flo-inspired=1",
-  "display": "standalone",
-  "background_color": "#fffafc",
-  "theme_color": "#64106f",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  "name":"LumaCycle",
+  "short_name":"LumaCycle",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#fff8f6",
+  "theme_color":"#fff8f6",
+  "description":"A friendly menstrual cycle tracker prototype with automatic cycle predictions."
 }

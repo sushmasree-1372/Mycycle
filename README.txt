@@ -1,20 +1,15 @@
-LumaCycle — working mobile web app prototype
+LumaCycle interactive prototype
 
-Open index.html in Safari/Chrome, or host this folder on any static host.
+Open index.html in Safari/Chrome.
 
-Implemented:
-- swipe the illustration left/right one day at a time
-- tap days in the week strip
-- period logging with flow, symptoms and notes
-- symptoms + mood check-ins
-- notes
-- automatic average cycle length and period length
-- next period estimate, ovulation estimate and fertile window
-- month calendar with logged/predicted/fertile/ovulation states
-- insights page
-- profile/preferences
-- local device persistence via localStorage
-- first-open welcome screen
-- original pastel illustrations/assets
+Working features:
+- Swipe the illustration area left/right to move one day at a time.
+- Date strip updates and can be tapped.
+- Log/edit period dates.
+- Symptom logging and notes.
+- Automatic average cycle length and period length from period history.
+- Automatic next-period and ovulation estimates.
+- Calendar, Insights, and Profile tabs.
+- Data saved locally in browser localStorage.
 
-Important: fertility and period predictions are estimates only and should not be used as contraception or medical diagnosis.
+This is a client-side prototype and is not medical advice or a clinically validated prediction system.

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c74b7c" />
+  <title>MyCycle — Period & Wellness Tracker</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MENSTRUAL WELLNESS</p>
+        <h1>MyCycle</h1>
+      </div>
+      <button class="round-btn" id="privacyBtn" aria-label="Privacy information">🔒</button>
+    </header>
+
+    <main>
+      <section class="screen active" data-screen="home">
+        <div class="hero card">
+          <div>
+            <p class="muted">Your next period</p>
+            <h2 id="nextPeriodText">Add your last period</h2>
+            <p id="countdownText" class="accent-text">Start tracking to see estimates</p>
+            <button class="compact-btn" data-go="log">Log today</button>
+          </div>
+          <div class="cycle-ring" aria-label="Current cycle day">
+            <span id="cycleDay">—</span>
+            <small>cycle day</small>
+          </div>
+        </div>
+
+        <div class="quick-grid">
+          <div class="mini-card"><span>Average cycle</span><strong id="homeAvgCycle">28 days</strong></div>
+          <div class="mini-card"><span>Average period</span><strong id="homeAvgPeriod">5 days</strong></div>
+          <div class="mini-card"><span>Last mood</span><strong id="homeLastMood">—</strong></div>
+          <div class="mini-card"><span>Last flow</span><strong id="homeLastFlow">—</strong></div>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <h3>Recent cycles</h3>
+            <button class="text-btn" data-go="calendar">View calendar</button>
+          </div>
+          <div id="recentCycles" class="timeline empty-state">No cycles logged yet.</div>
+        </div>
+
+        <div class="card soft-card">
+          <h3>Wellness note</h3>
+          <p class="muted small">Cycle predictions are estimates. They should not be used as birth control, pregnancy confirmation, or medical diagnosis.</p>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="calendar">
+        <div class="section-title-row">
+          <div><p class="eyebrow">HISTORY</p><h2>Calendar</h2></div>
+          <button class="compact-btn" data-go="log">+ Add period</button>
+        </div>
+        <div class="card calendar-card">
+          <div class="calendar-head">
+            <button class="round-btn small-round" id="prevMonth">‹</button>
+            <h3 id="calendarTitle">Month</h3>
+            <button class="round-btn small-round" id="nextMonth">›</button>
+          </div>
+          <div class="weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+          <div id="calendarGrid" class="calendar-grid"></div>
+          <div class="legend"><span><i class="dot period-dot"></i> Period</span><span><i class="dot predicted-dot"></i> Predicted</span><span><i class="dot today-dot"></i> Today</span></div>
+        </div>
+        <div class="card">
+          <h3>Cycle history</h3>
+          <div id="cycleHistory" class="timeline empty-state">No saved periods yet.</div>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="log">
+        <div class="section-title-row"><div><p class="eyebrow">TRACK</p><h2>Log your cycle</h2></div></div>
+        <div class="card">
+          <h3>Period</h3>
+          <div class="form-grid">
+            <label>Start date<input type="date" id="periodStart" /></label>
+            <label>End date<input type="date" id="periodEnd" /></label>
+          </div>
+          <button id="savePeriod" class="primary-btn">Save period</button>
+        </div>
+
+        <div class="card">
+          <h3>Today</h3>
+          <p class="muted small" id="todayLabel"></p>
+          <h4>Mood</h4>
+          <div class="moods" id="moodButtons">
+            <button data-mood="Happy">😊<span>Happy</span></button>
+            <button data-mood="Calm">😌<span>Calm</span></button>
+            <button data-mood="Tired">😴<span>Tired</span></button>
+            <button data-mood="Low">😔<span>Low</span></button>
+            <button data-mood="Anxious">😟<span>Anxious</span></button>
+            <button data-mood="Irritable">😤<span>Irritable</span></button>
+          </div>
+          <h4>Symptoms</h4>
+          <div class="chips" id="symptomChips">
+            <button data-symptom="Cramps">Cramps</button><button data-symptom="Bloating">Bloating</button><button data-symptom="Headache">Headache</button>
+            <button data-symptom="Acne">Acne</button><button data-symptom="Back pain">Back pain</button><button data-symptom="Cravings">Cravings</button>
+            <button data-symptom="Tender breasts">Tender breasts</button><button data-symptom="Fatigue">Fatigue</button><button data-symptom="Nausea">Nausea</button>
+          </div>
+          <div class="form-grid top-gap">
+            <label>Flow<select id="flow"><option>None</option><option>Spotting</option><option>Light</option><option>Medium</option><option>Heavy</option></select></label>
+            <label>Pain level<select id="pain"><option value="0">0 - None</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 - Severe</option></select></label>
+          </div>
+          <label class="top-gap">Daily note<textarea id="dailyNote" rows="3" placeholder="Anything you want to remember..."></textarea></label>
+          <button id="saveToday" class="secondary-btn">Save today's log</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="insights">
+        <div class="section-title-row"><div><p class="eyebrow">PATTERNS</p><h2>Insights</h2></div></div>
+        <div class="stats-grid">
+          <div class="stat-card"><span>Average cycle</span><strong id="avgCycle">—</strong><small>days</small></div>
+          <div class="stat-card"><span>Average period</span><strong id="avgPeriod">—</strong><small>days</small></div>
+          <div class="stat-card"><span>Shortest cycle</span><strong id="shortCycle">—</strong><small>days</small></div>
+          <div class="stat-card"><span>Longest cycle</span><strong id="longCycle">—</strong><small>days</small></div>
+        </div>
+        <div class="card">
+          <h3>Common symptoms</h3>
+          <div id="symptomInsights" class="bar-list empty-state">Add daily logs to see patterns.</div>
+        </div>
+        <div class="card">
+          <h3>Mood pattern</h3>
+          <div id="moodInsights" class="bar-list empty-state">Add mood logs to see patterns.</div>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="profile">
+        <div class="section-title-row"><div><p class="eyebrow">SETTINGS</p><h2>Profile & privacy</h2></div></div>
+        <div class="card">
+          <h3>Tracking preferences</h3>
+          <div class="form-grid">
+            <label>Typical cycle length<input id="cycleLength" type="number" min="20" max="60" value="28" /></label>
+            <label>Typical period length<input id="periodLength" type="number" min="1" max="14" value="5" /></label>
+          </div>
+          <button id="savePrefs" class="primary-btn">Save preferences</button>
+        </div>
+        <div class="card">
+          <h3>Your data</h3>
+          <p class="muted small">This prototype stores data only in this browser using local storage. No account or cloud server is connected.</p>
+          <div class="button-row"><button id="exportData" class="secondary-btn inline-btn">Export data</button><button id="clearData" class="danger-btn inline-btn">Delete all data</button></div>
+        </div>
+        <div class="card">
+          <h3>About</h3>
+          <p class="muted small">MyCycle Version 2 prototype. Built for menstrual wellness tracking and educational use.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button class="active" data-nav="home">⌂<span>Home</span></button>
+      <button data-nav="calendar">▦<span>Calendar</span></button>
+      <button data-nav="log" class="log-nav">＋<span>Log</span></button>
+      <button data-nav="insights">◔<span>Insights</span></button>
+      <button data-nav="profile">☻<span>Profile</span></button>
+    </nav>
+  </div>
+
+  <div id="privacyModal" class="modal hidden"><div class="modal-card"><h3>Your privacy</h3><p>This prototype stores entries only on this device/browser. For a public launch, add secure authentication, encrypted cloud storage, privacy notices, and legal review appropriate to your users and location.</p><button id="closePrivacy" class="primary-btn">Got it</button></div></div>
+  <div id="toast" class="toast hidden"></div>
+  <script src="app.js"></script>
+</body>
+</html>

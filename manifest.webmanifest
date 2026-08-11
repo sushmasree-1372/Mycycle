@@ -1,0 +1,9 @@
+{
+  "name":"MyCycle Period & Wellness Tracker",
+  "short_name":"MyCycle",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#fff8fb",
+  "theme_color":"#c74b7c",
+  "description":"A private menstrual cycle and wellness tracking prototype."
+}

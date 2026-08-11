@@ -1,106 +1,41 @@
-const $ = id => document.getElementById(id);
-const MONTH_THEMES=[
- ['#d53a62','#fde8ee'],['#e65d73','#fdecef'],['#ef8b3d','#fff0df'],['#5aa84f','#eaf6e8'],
- ['#2ba7a1','#e2f7f5'],['#398bd8','#e6f2fd'],['#4b61c8','#e8ebfb'],['#7a55c7','#eee9fb'],
- ['#c63c9a','#fae8f5'],['#e2673b','#fcebe5'],['#259ca8','#e4f5f6'],['#7659c5','#eeeafa']
-];
-function applyMonthTheme(){const [a,b]=MONTH_THEMES[new Date().getMonth()];document.documentElement.style.setProperty('--month',a);document.documentElement.style.setProperty('--month-soft',b);}
-function renderDateStrip(){const el=$('dateStrip');if(!el)return;const now=new Date();let html='';for(let i=-3;i<=3;i++){const d=new Date(now);d.setDate(now.getDate()+i);html+=`<div class="date-pill ${i===0?'today':''}"><span>${d.toLocaleDateString(undefined,{weekday:'short'}).slice(0,2)}</span><strong>${d.getDate()}</strong></div>`;}el.innerHTML=html;}
 
-const STORAGE_KEY = 'mycycleV2Data';
-let calendarCursor = new Date();
-calendarCursor.setDate(1);
-let selectedMood = null;
-let selectedSymptoms = [];
-
-const todayISO = () => {
-  const d = new Date();
-  const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${day}`;
-};
-const parseDate = s => s ? new Date(`${s}T12:00:00`) : null;
-const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const diffDays = (a,b) => Math.round((b-a)/(1000*60*60*24));
-const formatDate = d => d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
-
-function getData(){
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"periods":[],"logs":{},"prefs":{"cycleLength":28,"periodLength":5}}');
-}
-function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),1800); }
-function normalizePeriod(p){ return {start:p.start,end:p.end||p.start}; }
-function sortedPeriods(data){ return [...(data.periods||[])].map(normalizePeriod).sort((a,b)=>a.start.localeCompare(b.start)); }
-function cycleLengths(periods){ const out=[]; for(let i=1;i<periods.length;i++) out.push(diffDays(parseDate(periods[i-1].start),parseDate(periods[i].start))); return out.filter(n=>n>0&&n<90); }
-function periodLength(p){ return Math.max(1,diffDays(parseDate(p.start),parseDate(p.end))+1); }
-function mean(arr){ return arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : null; }
-function currentCycleInfo(data){
-  const periods=sortedPeriods(data); const prefs=data.prefs||{cycleLength:28,periodLength:5};
-  if(!periods.length) return null;
-  const starts=cycleLengths(periods); const avgCycle=mean(starts)||Number(prefs.cycleLength||28);
-  const today=parseDate(todayISO()); let last=periods[periods.length-1]; let lastStart=parseDate(last.start);
-  while(lastStart>today && periods.length>1){periods.pop();last=periods[periods.length-1];lastStart=parseDate(last.start);}
-  const daysSince=diffDays(lastStart,today); const cycleDay=daysSince+1; const next=new Date(lastStart); next.setDate(next.getDate()+avgCycle);
-  return {cycleDay,next,daysLeft:diffDays(today,next),avgCycle,last};
-}
-function predictedDates(data, months=4){
-  const periods=sortedPeriods(data); if(!periods.length) return [];
-  const cycle=mean(cycleLengths(periods)) || Number(data.prefs?.cycleLength||28);
-  const plen=mean(periods.map(periodLength)) || Number(data.prefs?.periodLength||5);
-  let cursor=parseDate(periods[periods.length-1].start); const dates=[];
-  for(let i=0;i<months;i++){ cursor=new Date(cursor); cursor.setDate(cursor.getDate()+cycle); for(let j=0;j<plen;j++){ const d=new Date(cursor); d.setDate(d.getDate()+j); dates.push(isoDate(d)); } }
-  return dates;
-}
-function actualPeriodDates(data){ const s=new Set(); sortedPeriods(data).forEach(p=>{let d=parseDate(p.start),e=parseDate(p.end); while(d<=e){s.add(isoDate(d));d.setDate(d.getDate()+1);}}); return s; }
-
-function showScreen(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.dataset.screen===name));
-  document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));
-  window.scrollTo({top:0,behavior:'smooth'});
-  renderAll();
-}
-
-document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.nav)));
-document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.go)));
-
-function renderHome(data){
-  const info=currentCycleInfo(data); const periods=sortedPeriods(data);
-  if(!info){ $('nextPeriodText').textContent='Add your last period'; $('countdownText').textContent='Start tracking to see estimates'; $('cycleDay').textContent='—'; }
-  else { $('nextPeriodText').textContent=formatDate(info.next); $('countdownText').textContent=info.daysLeft<0?'Prediction passed — log your latest period':info.daysLeft===0?'Expected today':`${info.daysLeft} day${info.daysLeft===1?'':'s'} remaining`; $('cycleDay').textContent=info.cycleDay; }
-  const cls=cycleLengths(periods); const avgC=mean(cls)||Number(data.prefs?.cycleLength||28); const avgP=mean(periods.map(periodLength))||Number(data.prefs?.periodLength||5);
-  $('homeAvgCycle').textContent=`${avgC} days`; $('homeAvgPeriod').textContent=`${avgP} days`;
-  const logs=Object.entries(data.logs||{}).sort((a,b)=>b[0].localeCompare(a[0])); const last=logs[0]?.[1]; $('homeLastMood').textContent=last?.mood||'—'; $('homeLastFlow').textContent=last?.flow||'—';
-  const box=$('recentCycles'); if(!periods.length){box.className='timeline empty-state';box.textContent='No cycles logged yet.';} else {box.className='timeline'; box.innerHTML=periods.slice(-4).reverse().map(p=>`<div class="timeline-item"><div><strong>${formatDate(parseDate(p.start))}</strong><br><span>${periodLength(p)} day period</span></div><span>${p.end?formatDate(parseDate(p.end)):''}</span></div>`).join('');}
-}
-
-function renderCalendar(data){
-  const title=calendarCursor.toLocaleDateString(undefined,{month:'long',year:'numeric'}); $('calendarTitle').textContent=title;
-  const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth(); const first=new Date(y,m,1); const start=new Date(y,m,1-first.getDay()); const actual=actualPeriodDates(data); const predicted=new Set(predictedDates(data)); const today=todayISO();
-  let html=''; for(let i=0;i<42;i++){ const d=new Date(start); d.setDate(start.getDate()+i); const iso=isoDate(d); const classes=['day']; if(d.getMonth()!==m)classes.push('muted-day'); if(iso===today)classes.push('today'); if(actual.has(iso))classes.push('period'); else if(predicted.has(iso))classes.push('predicted'); html+=`<div class="${classes.join(' ')}">${d.getDate()}</div>`; }
-  $('calendarGrid').innerHTML=html;
-  const periods=sortedPeriods(data).reverse(); const h=$('cycleHistory'); if(!periods.length){h.className='timeline empty-state';h.textContent='No saved periods yet.';} else {h.className='timeline';h.innerHTML=periods.map((p,i)=>{const prev=periods[i+1];const clen=prev?diffDays(parseDate(prev.start),parseDate(p.start)):null;return `<div class="timeline-item"><div><strong>${formatDate(parseDate(p.start))} – ${formatDate(parseDate(p.end))}</strong><br><span>${periodLength(p)} day period</span></div><span>${clen?`${clen} day cycle`:''}</span></div>`}).join('');}
-}
-
-function renderInsights(data){
-  const periods=sortedPeriods(data), cls=cycleLengths(periods), pls=periods.map(periodLength); $('avgCycle').textContent=mean(cls)||data.prefs?.cycleLength||'—'; $('avgPeriod').textContent=mean(pls)||data.prefs?.periodLength||'—'; $('shortCycle').textContent=cls.length?Math.min(...cls):'—'; $('longCycle').textContent=cls.length?Math.max(...cls):'—';
-  const symptomCounts={}, moodCounts={}; Object.values(data.logs||{}).forEach(l=>{(l.symptoms||[]).forEach(s=>symptomCounts[s]=(symptomCounts[s]||0)+1);if(l.mood)moodCounts[l.mood]=(moodCounts[l.mood]||0)+1;}); renderBars('symptomInsights',symptomCounts,'Add daily logs to see patterns.'); renderBars('moodInsights',moodCounts,'Add mood logs to see patterns.');
-}
-function renderBars(id,counts,empty){ const el=$(id); const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6); if(!entries.length){el.className='bar-list empty-state';el.textContent=empty;return;} const max=entries[0][1];el.className='bar-list';el.innerHTML=entries.map(([k,v])=>`<div class="bar-row"><span>${k}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max*100)}%"></div></div><strong>${v}</strong></div>`).join(''); }
-
-function renderProfile(data){ $('cycleLength').value=data.prefs?.cycleLength||28; $('periodLength').value=data.prefs?.periodLength||5; }
-function renderToday(data){ $('todayLabel').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}); const l=data.logs?.[todayISO()]; selectedMood=l?.mood||null; selectedSymptoms=[...(l?.symptoms||[])]; document.querySelectorAll('#moodButtons button').forEach(b=>b.classList.toggle('selected',b.dataset.mood===selectedMood)); document.querySelectorAll('#symptomChips button').forEach(b=>b.classList.toggle('selected',selectedSymptoms.includes(b.dataset.symptom))); $('flow').value=l?.flow||'None'; $('pain').value=String(l?.pain??0); $('dailyNote').value=l?.note||''; }
-function renderAll(){ applyMonthTheme(); renderDateStrip(); const data=getData(); renderHome(data); renderCalendar(data); renderInsights(data); renderProfile(data); renderToday(data); }
-
-$('prevMonth').addEventListener('click',()=>{calendarCursor.setMonth(calendarCursor.getMonth()-1);renderCalendar(getData())}); $('nextMonth').addEventListener('click',()=>{calendarCursor.setMonth(calendarCursor.getMonth()+1);renderCalendar(getData())});
-
-document.querySelectorAll('#moodButtons button').forEach(btn=>btn.addEventListener('click',()=>{selectedMood=btn.dataset.mood;document.querySelectorAll('#moodButtons button').forEach(b=>b.classList.toggle('selected',b===btn));}));
-document.querySelectorAll('#symptomChips button').forEach(btn=>btn.addEventListener('click',()=>{const s=btn.dataset.symptom;if(selectedSymptoms.includes(s))selectedSymptoms=selectedSymptoms.filter(x=>x!==s);else selectedSymptoms.push(s);btn.classList.toggle('selected');}));
-
-$('savePeriod').addEventListener('click',()=>{ const start=$('periodStart').value,end=$('periodEnd').value||start; if(!start){toast('Choose a period start date.');return;} if(end<start){toast('End date cannot be before start date.');return;} const data=getData(); const idx=(data.periods||[]).findIndex(p=>p.start===start); const p={start,end}; if(idx>=0)data.periods[idx]=p;else data.periods.push(p); data.periods=sortedPeriods(data); saveData(data); renderAll(); toast('Period saved.'); });
-$('saveToday').addEventListener('click',()=>{ const data=getData(); data.logs=data.logs||{}; data.logs[todayISO()]={mood:selectedMood,symptoms:selectedSymptoms,flow:$('flow').value,pain:Number($('pain').value),note:$('dailyNote').value.trim()}; saveData(data);renderAll();toast("Today's log saved."); });
-$('savePrefs').addEventListener('click',()=>{ const data=getData(); data.prefs={cycleLength:Number($('cycleLength').value||28),periodLength:Number($('periodLength').value||5)};saveData(data);renderAll();toast('Preferences saved.'); });
-$('clearData').addEventListener('click',()=>{ if(confirm('Delete all MyCycle data stored in this browser?')){localStorage.removeItem(STORAGE_KEY);renderAll();toast('All local data deleted.');} });
-$('exportData').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(getData(),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`mycycle-export-${todayISO()}.json`;a.click();URL.revokeObjectURL(a.href); });
-$('privacyBtn').addEventListener('click',()=>$('privacyModal').classList.remove('hidden')); $('closePrivacy').addEventListener('click',()=>$('privacyModal').classList.add('hidden'));
-
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
-renderAll();
+const app=document.querySelector('#app');
+let state=JSON.parse(localStorage.getItem('mycycle-pro-v1')||'{"periods":[],"logs":{}}');
+if(!Array.isArray(state.periods)) state.periods=[];
+const monthColors=['#ee4e98','#ef6e78','#efa447','#4fba72','#9ec84c','#45b7aa','#3da4dd','#7b1e87','#9c6bd5','#dd5aa1','#6f79c9','#ed755e'];
+document.documentElement.style.setProperty('--accent',monthColors[new Date().getMonth()]);
+const save=()=>localStorage.setItem('mycycle-pro-v1',JSON.stringify(state));
+const today=new Date();
+function iso(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+function sorted(){return [...state.periods].sort((a,b)=>a.start.localeCompare(b.start))}
+function days(a,b){return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000)}
+function avgCycle(){let p=sorted();if(p.length<2)return 28;let a=[];for(let i=1;i<p.length;i++){let n=days(p[i-1].start,p[i].start);if(n>=15&&n<=60)a.push(n)}return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):28}
+function avgPeriod(){let a=sorted().filter(x=>x.end).map(x=>days(x.start,x.end)+1).filter(x=>x>0&&x<16);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):5}
+function latest(){let p=sorted();return p[p.length-1]||null}
+function cycleDay(){let l=latest();return l?Math.max(1,days(l.start,iso(today))+1):'—'}
+function phase(){let d=Number(cycleDay());if(!d)return 'Start tracking';if(d<=5)return 'Menstrual phase';let o=avgCycle()-14;if(d<o)return 'Follicular phase';if(Math.abs(d-o)<=1)return 'Estimated ovulation';return 'Luteal phase'}
+function nextPeriod(){let l=latest();if(!l)return null;let d=new Date(l.start+'T12:00:00');d.setDate(d.getDate()+avgCycle());return iso(d)}
+function nextIn(){let np=nextPeriod();return np?Math.max(0,days(iso(today),np)):null}
+function dateStrip(){let h='';for(let i=-3;i<=3;i++){let d=new Date(today);d.setDate(today.getDate()+i);h+=`<div class="date ${i===0?'today':''}">${d.toLocaleDateString('en',{weekday:'short'})}<b>${d.getDate()}</b></div>`}return h}
+function home(){app.innerHTML=`<div class="greet"><h2>Good ${today.getHours()<12?'morning':today.getHours()<18?'afternoon':'evening'}! 🌸</h2><div class=sub>Your body is doing amazing.</div></div><div class=date-strip>${dateStrip()}</div>
+<section class=hero><img src="assets/home-art.png"><div class=cycle-card><div>Cycle day</div><strong>${cycleDay()}</strong><div class=phase>${phase()} ⓘ</div><div class=progress><i></i></div></div>
+<div class=prediction>🌼 ${latest()?'Next period in':'Smart predictions'} <strong>${latest()?nextIn()+' days':'Start tracking'}</strong><br><small>${latest()?'Based on your logged cycle history':'Log a period to begin predictions'}</small></div>
+<div class=quick3><div class=tile onclick=openPeriod()><span>🩸</span>Log period</div><div class=tile onclick="go('symptoms')"><span>🌸</span>Log symptoms</div><div class=tile onclick="go('mood')"><span>🙂</span>Log mood</div></div></section>
+<div class=section-title>Today's insights</div><div class=insight><h3>☀️ Your energy may be changing today!</h3><p>Track how you feel to discover patterns that are personal to you.</p><div class=flower>🌷</div></div>
+<div class=section-title>Quick tips</div><div class=tip>💧 Stay hydrated</div><div class=tip>🧘‍♀️ Light exercise</div><div class=tip>🥗 Eat iron-rich foods</div><div class=note>Theme accent changes automatically every month ✨</div>`}
+function calendar(){let y=today.getFullYear(),m=today.getMonth(),first=new Date(y,m,1).getDay(),count=new Date(y,m+1,0).getDate(),g='SMTWTFS'.split('').map(x=>`<div class=dow>${x}</div>`).join('');for(let i=0;i<first;i++)g+='<div></div>';for(let d=1;d<=count;d++){let ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;let c=d===today.getDate()?'today':'';state.periods.forEach(p=>{if(p.start&&p.end&&ds>=p.start&&ds<=p.end)c='period'});g+=`<div class="cell ${c}">${d}</div>`}app.innerHTML=`<div class=calendar-head><div class=page-title>Calendar</div><b>${today.toLocaleDateString('en',{month:'long',year:'numeric'})}</b></div><div class="card cal"><div class=grid>${g}</div><div class=legend>● Period　🟢 Fertile window　🟣 Ovulation　• Logged</div></div><div class="card summary">🗓️ <b>Period ${latest()?'in '+nextIn()+' days':'not predicted yet'}</b><br><small>Average cycle ${avgCycle()} days • calculated automatically</small></div>`}
+const logItems=[['🩸','Period'],['🌸','Symptoms'],['🙂','Mood'],['🌙','Sleep'],['❤️','Sex'],['⚖️','Weight'],['🥤','Water'],['✏️','Notes']];
+function log(){app.innerHTML=`<div class=page-title>Log today</div><div class=sub>${today.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'})}</div><div class=section-title>What would you like to log?</div><div class=loggrid>${logItems.map(x=>`<div class="card logtile" onclick="${x[1]==='Period'?'openPeriod()':x[1]==='Symptoms'?`go('symptoms')`:x[1]==='Mood'?`go('mood')`:`quick('${x[1]}')`}"><span>${x[0]}</span>${x[1]}</div>`).join('')}</div><textarea id=note placeholder="Add a note… (optional)"></textarea><button class=save onclick=saveNote()>Save</button>`}
+function insights(){app.innerHTML=`<div class=page-title>Insights</div><div class=tabs><button class=on>Cycle</button><button onclick="go('symptoms')">Symptoms</button><button onclick="go('mood')">Mood</button></div><div class="card metric">Cycle length<strong>${avgCycle()} days</strong><small>Average from your logged cycles</small><div class=chart>${[45,72,54,80,87,65].map(v=>`<i class=bar style="height:${v}%"></i>`).join('')}</div></div><div class=stats><div class="card stat">Period length<strong>${avgPeriod()} days</strong></div><div class="card stat">Ovulation day<strong>Day ${Math.max(1,avgCycle()-14)}</strong></div></div><div class=section-title>Your patterns</div><div class="card metric">Bloating　●●●○○<br><br>Headache　●●○○○<br><br>Mood swings　●●●○○</div>`}
+function symptoms(){let s=[['🌸','Bloating'],['🔥','Cramps'],['🧊','Headache'],['🌺','Acne'],['🩸','Breast tenderness'],['🧘‍♀️','Back pain']];app.innerHTML=`<div class=page-title>Symptoms</div><div class=tabs><button class=on>This cycle</button><button>History</button></div>${s.map(x=>`<div class="card symrow"><span>${x[0]} ${x[1]}</span><span onclick="quick('${x[1]}')">●●○　›</span></div>`).join('')}<button class=save onclick="quick('Custom symptom')">＋ Add symptom</button>`}
+function mood(){app.innerHTML=`<div class=page-title>Mood</div><div class="card moodbars">${[65,88,55,72,91,60,78].map(v=>`<i style="--h:${v}%"></i>`).join('')}</div><div class=section-title>How are you feeling today?</div><div class=moods>${['🥰 Amazing','🙂 Good','😌 Okay','😔 Sad','😟 Anxious','😤 Irritable'].map(x=>`<div class="card mood" onclick="quick('${x}')">${x}</div>`).join('')}</div><div class=quote>🌷 Small steps, big smiles! 💜</div>`}
+function profile(){let p=sorted().slice().reverse();app.innerHTML=`<div class=profile><div class=avatar>👩🏻</div><div class=page-title>MyCycle 💜</div><div class=sub>Listening to my body.</div><div class=quote>🌿 “Every cycle is unique, and so are you.” 🌸</div></div><div class=menu><div class="card row">📊 My data <span>›</span></div><div class="card row">🔔 Reminders <span>›</span></div><div class="card row">☁️ Backup & Sync <span>›</span></div><div class="card row">🔐 Passcode / Face ID <span>›</span></div><div class="card row">🎨 Theme <span>Auto ›</span></div><div class="card row">ⓘ About <span>›</span></div></div><div class=section-title>Period history</div>${p.length?p.map(x=>`<div class="card history">${x.start} → ${x.end}<button onclick="editPeriod('${x.start}')">Edit</button></div>`).join(''):'<div class="card history">No periods logged yet.</div>'}<div class=note>Cycle length and period length are calculated automatically from your period history.</div>`}
+function openPeriod(editStart=null){let p=editStart?state.periods.find(x=>x.start===editStart):{start:iso(today),end:iso(today)};document.body.insertAdjacentHTML('beforeend',`<div class=modal id=modal><div class=sheet><h2>${editStart?'Edit':'Log'} period 🩸</h2><label>Start date</label><input id=ps type=date value="${p.start}"><label>End date</label><input id=pe type=date value="${p.end}"><button class=save onclick="savePeriod('${editStart||''}')">Save period</button><p style="text-align:center" onclick=modal.remove()>Cancel</p></div></div>`)}
+function savePeriod(editStart){let p={start:ps.value,end:pe.value};if(!p.start||!p.end)return alert('Choose both dates');if(p.end<p.start)return alert('End date must be after start date');if(editStart){let i=state.periods.findIndex(x=>x.start===editStart);state.periods[i]=p}else state.periods.push(p);save();modal.remove();go('calendar')}
+function editPeriod(start){openPeriod(start)}
+function quick(x){state.logs[x]=(state.logs[x]||0)+1;save();alert(x+' logged 💜')}
+function saveNote(){state.logs.note=document.querySelector('#note').value;save();alert('Saved 💜')}
+function go(page){({home,calendar,log,insights,symptoms,mood,profile}[page]||home)();document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page))}
+document.querySelectorAll('.bottom-nav button[data-page]').forEach(b=>b.onclick=()=>go(b.dataset.page));
+go('home');
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');

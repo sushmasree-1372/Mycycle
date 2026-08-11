@@ -1,10 +1,10 @@
 {
   "name": "MyCycle",
   "short_name": "MyCycle",
-  "start_url": "./?fix=2",
+  "start_url": "./?flo-inspired=1",
   "display": "standalone",
-  "background_color": "#fffafd",
-  "theme_color": "#5d1269",
+  "background_color": "#fffafc",
+  "theme_color": "#64106f",
   "icons": [
     {
       "src": "icon-192.png",

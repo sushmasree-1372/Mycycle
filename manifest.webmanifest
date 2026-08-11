@@ -1,9 +1,9 @@
 {
-  "name":"LumaCycle",
-  "short_name":"LumaCycle",
-  "start_url":"./index.html",
-  "display":"standalone",
-  "background_color":"#fff7fb",
-  "theme_color":"#fff7fb",
-  "description":"A dreamy period and cycle tracking prototype."
+  "name": "LumaCycle",
+  "short_name": "LumaCycle",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fff8fb",
+  "theme_color": "#fff7fb",
+  "description": "A dreamy menstrual cycle tracking prototype."
 }

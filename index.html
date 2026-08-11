@@ -5,16 +5,217 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#fff7fb" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="LumaCycle" />
+<link rel="manifest" href="manifest.webmanifest" />
 <title>LumaCycle</title>
 <style>
 :root{--ink:#38204f;--pink:#ff5d85;--pink-soft:#ffdbe6;--purple:#8c60db;--purple-soft:#eee6ff;--gold:#ffab32;--teal:#28a9aa;--bg:#fff8fb;--muted:#766c7b;--line:#eee5ec;--shadow:0 12px 30px rgba(71,43,88,.10)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#f2eef2;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--ink)}body{display:flex;justify-content:center}.app{width:min(100%,480px);min-height:100vh;background:radial-gradient(circle at 40% 0,#fff 0,#fff6fa 42%,#fff9fb 100%);padding-bottom:95px;overflow:hidden;position:relative}.screen{display:none}.screen.active{display:block}.topbar{display:flex;justify-content:space-between;align-items:center;padding:26px 24px 8px}.brand{font:700 37px/1 Georgia,serif;letter-spacing:-1.2px}.brand sup{color:#ffc04c;font-size:18px}.roundbtn{border:0;background:#fff;width:48px;height:48px;border-radius:50%;box-shadow:var(--shadow);font-size:23px;color:var(--ink)}.topicons{display:flex;gap:12px}.notify{position:relative}.notify:after{content:"";position:absolute;right:1px;top:1px;width:10px;height:10px;border-radius:50%;background:var(--pink)}
-.datehead{text-align:center;padding:10px 0 12px}.datehead .today{font-size:18px}.datehead h1{margin:3px 0 0;font:700 35px/1.1 Georgia,serif}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:0 22px 8px}.dcell{text-align:center;display:flex;flex-direction:column;align-items:center;gap:7px}.dow{font-size:12px;color:#6f6873}.bubble{width:45px;height:45px;display:grid;place-items:center;border-radius:50%;font-size:18px;background:#fff}.bubble.period{background:#ffdbe5;color:#ef3d70}.bubble.selected{background:#44225c;color:#fff}.bubble.fertile{color:var(--teal)}.bubble.ov{border:2px dotted var(--teal);color:var(--teal);background:#fff}.small-dot{width:6px;height:6px;background:#ee4776;border-radius:50%;margin-top:-12px}.chev{text-align:center;font-size:29px;line-height:1;color:#3b2050;margin-bottom:5px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#f2eef2;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--ink)}body{display:flex;justify-content:center}.app{width:min(100%,480px);min-height:100vh;background:radial-gradient(circle at 40% 0,#fff 0,#fff6fa 42%,#fff9fb 100%);padding-bottom:95px;overflow:hidden;position:relative}.screen{display:none}.screen.active{display:block}.topbar{display:flex;justify-content:space-between;align-items:center;padding:26px 24px 8px}.brand{font-family:"Snell Roundhand","Apple Chancery","URW Chancery L","Brush Script MT",cursive;font-size:43px;font-weight:600;line-height:1;letter-spacing:.2px;font-style:italic;text-shadow:0 1px 0 rgba(255,255,255,.7)}.brand sup{color:#ffc04c;font-size:18px}.roundbtn{border:0;background:#fff;width:48px;height:48px;border-radius:50%;box-shadow:var(--shadow);font-size:23px;color:var(--ink)}.topicons{display:flex;gap:12px}.notify{position:relative}.notify:after{content:"";position:absolute;right:1px;top:1px;width:10px;height:10px;border-radius:50%;background:var(--pink)}
+.datehead{text-align:center;padding:10px 0 12px}.datehead .today{font-size:18px}.datehead h1{margin:3px 0 0;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:35px;font-weight:700;line-height:1.1;letter-spacing:-.4px}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:0 22px 8px}.dcell{text-align:center;display:flex;flex-direction:column;align-items:center;gap:7px}.dow{font-size:12px;color:#6f6873}.bubble{width:45px;height:45px;display:grid;place-items:center;border-radius:50%;font-size:18px;background:#fff}.bubble.period{background:#ffdbe5;color:#ef3d70}.bubble.selected{background:#44225c;color:#fff}.bubble.fertile{color:var(--teal)}.bubble.ov{border:2px dotted var(--teal);color:var(--teal);background:#fff}.small-dot{width:6px;height:6px;background:#ee4776;border-radius:50%;margin-top:-12px}.chev{text-align:center;font-size:29px;line-height:1;color:#3b2050;margin-bottom:5px}
 .hero-wrap{position:relative;height:355px;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab;background:#c9b8e6}.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.02);transition:transform .25s ease,opacity .25s ease}.hero-wrap.swipe-left .hero-img{transform:translateX(-30%) scale(1.02);opacity:.3}.hero-wrap.swipe-right .hero-img{transform:translateX(30%) scale(1.02);opacity:.3}.hint{position:absolute;z-index:2;top:18px;left:50%;transform:translateX(-50%);background:rgba(255,248,252,.93);padding:9px 15px;border-radius:99px;color:#7f649e;font-size:12px;white-space:nowrap}.arrow{position:absolute;z-index:2;top:50%;transform:translateY(-50%);border:0;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.88);color:#8f60cc;font-size:28px;box-shadow:0 6px 20px rgba(60,32,83,.12)}.arrow.left{left:20px}.arrow.right{right:20px}.sidedate{position:absolute;z-index:2;top:49%;transform:translateY(-50%);font-size:13px;color:#6c4b90;line-height:1.45;text-align:center}.sidedate.left{left:16px}.sidedate.right{right:16px}.status{text-align:center;padding:14px 20px 5px}.status .phase{font-size:19px}.status h2{font-size:31px;margin:4px 0 5px}.status p{margin:0;font-size:15px;color:#332d37}.prog{width:62%;height:6px;margin:16px auto 0;border-radius:99px;background:repeating-linear-gradient(90deg,#d9cfdc 0 9px,transparent 9px 16px);position:relative}.prog:before{content:"";position:absolute;left:0;top:0;height:6px;width:50%;border-radius:99px;background:linear-gradient(90deg,#ff8dab,var(--pink))}.prog:after{content:"";position:absolute;left:48%;top:50%;transform:translate(-50%,-50%);width:15px;height:15px;border:5px solid var(--pink);background:#fff;border-radius:50%}
 .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 24px}.action{border:1px solid #f1dce5;background:#fff4f7;border-radius:20px;display:flex;gap:10px;align-items:center;padding:12px 10px;min-width:0}.action:nth-child(2){background:#f4efff;border-color:#e7dcff}.action:nth-child(3){background:#fff8eb;border-color:#f6e7ca}.aicon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:white;font-size:21px;flex:0 0 auto}.aicon.pink{background:var(--pink)}.aicon.purple{background:var(--purple)}.aicon.gold{background:var(--gold)}.action b{font-size:13px;display:block}.action small{font-size:11px;color:var(--muted);display:block;margin-top:3px}.section{padding:6px 24px 16px}.sectionhead{display:flex;justify-content:space-between;align-items:center}.sectionhead h3{font-size:21px;margin:0}.see{border:0;background:none;color:#8654cf;font-size:14px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.card{min-height:160px;border-radius:20px;padding:14px;position:relative;overflow:hidden;border:1px solid #eedee7}.card.pink{background:#fff0f4}.card.purple{background:#f1ebff}.card.gold{background:#fff8ed}.card h4{margin:0;font-size:12px;font-weight:600}.big{font-size:42px;font-weight:800;margin-top:20px}.sub{font-size:11px;color:#6d6174;margin-top:5px}.curve{position:absolute;left:8px;right:8px;bottom:12px;height:55px;border-bottom:3px solid var(--pink);border-radius:60% 40% 0 0;transform:skewY(-8deg)}.flower{position:absolute;right:-8px;bottom:-5px;width:78px;height:78px;border-radius:16px;object-fit:cover;mix-blend-mode:multiply;opacity:.9}
 .bottom{position:fixed;z-index:20;bottom:0;width:min(100%,480px);background:rgba(255,255,255,.95);backdrop-filter:blur(18px);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 10px calc(8px + env(safe-area-inset-bottom));border-radius:28px 28px 0 0;box-shadow:0 -8px 25px rgba(55,33,69,.06)}.nav{border:0;background:none;color:#7e7981;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px}.nav i{font-style:normal;font-size:24px}.nav.active{color:var(--pink);font-weight:700}.nav.log i{width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#ff82a1,#ff5b82);color:#fff;display:grid;place-items:center;font-size:34px;margin-top:-30px;box-shadow:0 12px 24px rgba(255,93,133,.28)}
 .page{padding:18px 22px 120px}.pageheader{display:flex;align-items:center;justify-content:space-between}.pageheader h2{font-size:28px;margin:0}.monthgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:18px}.mh{text-align:center;color:var(--muted);font-size:11px}.md{aspect-ratio:1;display:grid;place-items:center;border-radius:50%;font-size:14px}.md.period{background:var(--pink);color:#fff}.md.pred{border:2px dotted var(--pink);color:var(--pink)}.md.fertile{color:var(--teal)}.md.ov{border:2px dotted var(--teal);color:var(--teal)}.md.today{font-weight:800;box-shadow:inset 0 0 0 2px #3f2258}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:18px}.legend span:before{content:"";width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--pink);margin-right:5px}.legend .l2:before{background:var(--teal)}.panel{background:#fff;border-radius:24px;padding:18px;margin-top:16px;box-shadow:var(--shadow)}.panel h3{margin:0 0 7px}.input,textarea{width:100%;border:1px solid #eadfe7;border-radius:15px;padding:12px;background:#fff;font:inherit}.save{width:100%;border:0;border-radius:16px;padding:14px;background:var(--ink);color:#fff;font-weight:800;margin-top:12px}.chiprow{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1px solid #eadfe7;background:#fff;border-radius:99px;padding:9px 12px}.chip.on{background:#fff0f4;border-color:var(--pink);color:#d83e69}.metricgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:#fff;border-radius:20px;padding:16px;box-shadow:var(--shadow)}.metric b{font-size:28px}.modal{position:fixed;z-index:50;inset:0;background:rgba(50,32,60,.32);backdrop-filter:blur(5px);display:none;align-items:flex-end;justify-content:center}.modal.show{display:flex}.sheet{width:min(100%,480px);max-height:80vh;overflow:auto;background:#fff;border-radius:28px 28px 0 0;padding:18px 20px calc(24px + env(safe-area-inset-bottom))}.sheet h3{margin:0 0 12px;font-size:24px}.close{float:right;border:0;background:#f6f0f5;width:38px;height:38px;border-radius:50%;font-size:19px}
-@media(max-width:380px){.brand{font-size:32px}.datehead h1{font-size:31px}.actions{padding-left:14px;padding-right:14px}.action{padding:10px 7px}.action small{display:none}.section{padding-left:14px;padding-right:14px}.hero-wrap{height:330px}}
+@media(max-width:380px){.brand{font-size:38px}.datehead h1{font-size:31px}.actions{padding-left:14px;padding-right:14px}.action{padding:10px 7px}.action small{display:none}.section{padding-left:14px;padding-right:14px}.hero-wrap{height:330px}}
+
+/* ===== LumaCycle mobile polish / Safari fixes ===== */
+html,body{width:100%;overflow-x:hidden}
+body{min-height:100dvh}
+.app{
+  width:100%;
+  max-width:430px;
+  min-height:100dvh;
+  padding-bottom:150px;
+  overflow-x:hidden;
+}
+.topbar{
+  padding:
+    max(18px,calc(env(safe-area-inset-top) + 10px))
+    20px 6px;
+}
+.brand{
+  font-size:clamp(34px,9.8vw,42px);
+  white-space:nowrap;
+}
+.roundbtn{width:46px;height:46px;flex:0 0 46px}
+.topicons{gap:9px}
+
+.datehead{padding:8px 14px 10px}
+.datehead .today{font-size:17px;min-height:21px}
+.datehead h1{
+  font-size:clamp(28px,8vw,35px);
+  line-height:1.04;
+  margin:4px auto 8px;
+  max-width:94%;
+  overflow-wrap:normal;
+}
+.week{padding:0 15px 7px;gap:2px}
+.bubble{
+  width:clamp(39px,11vw,45px);
+  height:clamp(39px,11vw,45px);
+  font-size:clamp(16px,4.8vw,19px);
+}
+.chev{margin:0 0 5px;font-size:26px}
+
+/* Keep the original artwork at its native landscape aspect ratio.
+   The old 355px fixed height caused Safari to zoom/crop the mascot. */
+.hero-wrap{
+  width:100%;
+  height:auto !important;
+  aspect-ratio:864/455;
+  min-height:0;
+  overflow:hidden;
+  background:#c9b8e6;
+  border-radius:0;
+}
+.hero-img{
+  width:100%;
+  height:100%;
+  object-fit:fill;
+  object-position:center;
+  transform:none;
+}
+.hero-wrap.swipe-left .hero-img{transform:translateX(-16%);opacity:.35}
+.hero-wrap.swipe-right .hero-img{transform:translateX(16%);opacity:.35}
+
+/* Cover the baked-in labels in the artwork with live labels.
+   This prevents the doubled text shown in Safari. */
+.hint{
+  top:7%;
+  left:50%;
+  width:max-content;
+  max-width:76%;
+  padding:7px 13px;
+  font-size:clamp(10px,2.9vw,12px);
+  line-height:1.15;
+  text-align:center;
+  background:rgba(255,250,253,.97);
+  box-shadow:0 3px 14px rgba(76,46,98,.08);
+}
+.sidedate{
+  top:43%;
+  width:68px;
+  height:72px;
+  padding:8px 5px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(251,246,255,.96);
+  backdrop-filter:blur(6px);
+  font-size:11px;
+  line-height:1.35;
+}
+.sidedate.left{left:0;border-radius:0 18px 18px 0}
+.sidedate.right{right:0;border-radius:18px 0 0 18px}
+.arrow{
+  top:64%;
+  width:40px;
+  height:40px;
+  font-size:25px;
+  background:rgba(255,255,255,.96);
+}
+.arrow.left{left:17px}.arrow.right{right:17px}
+
+.status{padding:13px 16px 6px}
+.status .phase{font-size:clamp(16px,4.7vw,19px)}
+.status h2{
+  font-size:clamp(27px,7.8vw,32px);
+  line-height:1.03;
+  margin:5px auto 7px;
+  max-width:94%;
+}
+.status p{
+  font-size:clamp(13px,4vw,15px);
+  line-height:1.3;
+  padding:0 6px;
+}
+.prog{width:60%;margin-top:14px}
+
+.actions{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  padding:16px 14px 13px;
+}
+.action{
+  min-width:0;
+  width:100%;
+  padding:10px 7px;
+  gap:6px;
+  border-radius:18px;
+  overflow:hidden;
+  color:var(--ink);
+  text-align:left;
+}
+.action > span:last-child{min-width:0}
+.aicon{
+  width:38px;height:38px;flex:0 0 38px;
+  font-size:19px;
+}
+.action b{
+  color:var(--ink);
+  font-size:clamp(11px,3.2vw,13px);
+  line-height:1.12;
+  white-space:normal;
+  word-break:normal;
+}
+.action small{
+  font-size:clamp(8.5px,2.5vw,10.5px);
+  line-height:1.15;
+  white-space:normal;
+}
+.section{padding:9px 14px 20px}
+.sectionhead h3{font-size:clamp(18px,5.2vw,21px)}
+.see{font-size:13px;padding:8px 0 8px 8px}
+.cards{gap:8px;margin-top:10px}
+.card{
+  min-width:0;
+  min-height:145px;
+  padding:12px 10px;
+  border-radius:18px;
+}
+.card h4{
+  font-size:clamp(10px,2.8vw,12px);
+  line-height:1.25;
+}
+.big{
+  font-size:clamp(31px,9vw,42px);
+  line-height:1;
+  margin-top:18px;
+  overflow-wrap:anywhere;
+}
+.sub{font-size:10px;line-height:1.25}
+.flower{width:62px;height:62px;right:-6px;bottom:-3px}
+
+.bottom{
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:430px;
+  padding:9px 8px calc(10px + env(safe-area-inset-bottom));
+}
+.nav{font-size:10px;min-width:0}
+.nav i{font-size:22px}
+.nav.log i{width:56px;height:56px;font-size:33px;margin-top:-29px}
+
+.page{padding:18px 16px 165px}
+.sheet{padding-bottom:calc(30px + env(safe-area-inset-bottom))}
+
+@media(max-width:370px){
+  .topbar{padding-left:14px;padding-right:14px}
+  .brand{font-size:33px}
+  .roundbtn{width:42px;height:42px;flex-basis:42px}
+  .week{padding-left:8px;padding-right:8px}
+  .actions{padding-left:8px;padding-right:8px;gap:6px}
+  .action{padding:9px 5px;gap:4px}
+  .aicon{width:34px;height:34px;flex-basis:34px}
+  .section{padding-left:10px;padding-right:10px}
+  .card{padding:10px 8px}
+  .sidedate{width:60px}
+  .arrow.left{left:12px}.arrow.right{right:12px}
+}
+
 </style>
 </head>
 <body>
@@ -55,7 +256,15 @@ function stats(){let r=runs();let starts=r.map(x=>x[0]);let intervals=[];for(let
 function diff(a,b){return Math.round((a-b)/DAY)}
 function isPeriod(d){return data.periodDates.includes(fmt(d))}
 function phaseFor(d){let s=stats();let cd=diff(d,s.lastStart)+1;if(isPeriod(d))return{phase:'Period',title:`Period day ${Math.max(1,cd)}`,sub:'Take it gently today',chance:'Low',name:'Menstrual Phase',cd:Math.max(1,cd)};let untilOv=diff(s.ov,d);let untilNext=diff(s.next,d);if(Math.abs(untilOv)<=1)return{phase:'Fertile Window 🌸',title:'Ovulation today',sub:'High chance of getting pregnant',chance:'High',name:'Ovulation',cd};if(untilOv>0&&untilOv<=5)return{phase:'Fertile Window 🌸',title:`Ovulation in ${untilOv} days`,sub:'High chance of getting pregnant',chance:'High',name:'Follicular Phase',cd};if(untilNext>=0)return{phase:'Cycle Prediction',title:`Period in ${untilNext} days`,sub:'Lower chance of getting pregnant',chance:'Low',name:'Luteal Phase',cd};return{phase:'Cycle Prediction',title:'Period may be due',sub:'Log your period to improve predictions',chance:'Low',name:'Cycle update',cd}}
-function render(){let p=phaseFor(selected),s=stats();document.getElementById('dateTitle').textContent=selected.toLocaleDateString('en-US',{month:'short',day:'numeric',weekday:'long'}).replace(',',' ,').replace(' ,',',');document.getElementById('todayLabel').textContent=fmt(selected)==='2026-08-09'?'Today':'';document.getElementById('phaseText').textContent=p.phase;document.getElementById('statusTitle').textContent=p.title;document.getElementById('statusSub').textContent=p.sub;document.getElementById('pregChance').textContent=p.chance;document.getElementById('cycleDay').textContent=Math.max(1,p.cd);document.getElementById('phaseName').textContent=p.name;document.getElementById('nextPeriodDays').textContent=Math.max(0,diff(s.next,selected));document.getElementById('periodActionTitle').textContent=isPeriod(selected)?'Edit Period':'Log Period';renderWeek();renderSideDates();renderCalendar();renderInsights()}
+function render(){let p=phaseFor(selected),s=stats();document.getElementById('dateTitle').textContent=selected.toLocaleDateString('en-US',{month:'short',day:'numeric',weekday:'long'}).replace(',',' ,').replace(' ,',',');const realToday=new Date(); realToday.setHours(0,0,0,0);
+document.getElementById('todayLabel').textContent=(fmt(selected)===fmt(realToday)||fmt(selected)==='2026-08-09')?'Today':'';document.getElementById('phaseText').textContent=p.phase;document.getElementById('statusTitle').textContent=p.title;document.getElementById('statusSub').textContent=p.sub;document.getElementById('pregChance').textContent=p.chance;
+let overdue=diff(selected,s.next)>0&&!isPeriod(selected);
+document.getElementById('cycleDay').textContent=overdue?'—':Math.max(1,p.cd);
+document.getElementById('phaseName').textContent=overdue?'Log period to update':p.name;
+let nextDiff=diff(s.next,selected);
+document.getElementById('nextPeriodDays').textContent=overdue?'Due':Math.max(0,nextDiff);
+document.getElementById('periodActionTitle').textContent=isPeriod(selected)?'Edit Period':'Log Period';
+renderWeek();renderSideDates();renderCalendar();renderInsights()}
 function renderWeek(){let w=document.getElementById('week');w.innerHTML='';let start=new Date(selected);start.setDate(selected.getDate()-selected.getDay());for(let i=0;i<7;i++){let d=new Date(start);d.setDate(start.getDate()+i);let ph=phaseFor(d);let cls='bubble';if(isPeriod(d))cls+=' period';else if(Math.abs(diff(stats().ov,d))<=0)cls+=' ov';else if(Math.abs(diff(stats().ov,d))<=5)cls+=' fertile';if(fmt(d)===fmt(selected))cls+=' selected';w.insertAdjacentHTML('beforeend',`<div class="dcell" data-date="${fmt(d)}"><div class="dow">${['S','M','T','W','T','F','S'][i]}</div><div class="${cls}">${d.getDate()}</div>${isPeriod(d)&&i===0?'<div class="small-dot"></div>':''}</div>`)}w.querySelectorAll('.dcell').forEach(el=>el.onclick=()=>{selected=parse(el.dataset.date);render()})}
 function renderSideDates(){let a=new Date(selected.getTime()-DAY),b=new Date(selected.getTime()+DAY);document.getElementById('prevDate').innerHTML=`${a.toLocaleDateString('en-US',{month:'short',day:'numeric'})}<br><b>${a.toLocaleDateString('en-US',{weekday:'short'})}</b>`;document.getElementById('nextDate').innerHTML=`${b.toLocaleDateString('en-US',{month:'short',day:'numeric'})}<br><b>${b.toLocaleDateString('en-US',{weekday:'short'})}</b>`}
 function move(n){let hero=document.getElementById('hero');hero.classList.add(n>0?'swipe-left':'swipe-right');setTimeout(()=>{selected=new Date(selected.getTime()+n*DAY);render();hero.classList.remove('swipe-left','swipe-right')},180)}

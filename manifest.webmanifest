@@ -4,6 +4,10 @@
   "start_url":"./index.html",
   "display":"standalone",
   "background_color":"#fff8fb",
-  "theme_color":"#c74b7c",
-  "description":"A private menstrual cycle and wellness tracking prototype."
+  "theme_color":"#3B0A45",
+  "description":"A private, playful menstrual cycle and wellness tracker.",
+  "icons":[
+    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
 }

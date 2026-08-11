@@ -1,4 +1,12 @@
 const $ = id => document.getElementById(id);
+const MONTH_THEMES=[
+ ['#d53a62','#fde8ee'],['#e65d73','#fdecef'],['#ef8b3d','#fff0df'],['#5aa84f','#eaf6e8'],
+ ['#2ba7a1','#e2f7f5'],['#398bd8','#e6f2fd'],['#4b61c8','#e8ebfb'],['#7a55c7','#eee9fb'],
+ ['#c63c9a','#fae8f5'],['#e2673b','#fcebe5'],['#259ca8','#e4f5f6'],['#7659c5','#eeeafa']
+];
+function applyMonthTheme(){const [a,b]=MONTH_THEMES[new Date().getMonth()];document.documentElement.style.setProperty('--month',a);document.documentElement.style.setProperty('--month-soft',b);}
+function renderDateStrip(){const el=$('dateStrip');if(!el)return;const now=new Date();let html='';for(let i=-3;i<=3;i++){const d=new Date(now);d.setDate(now.getDate()+i);html+=`<div class="date-pill ${i===0?'today':''}"><span>${d.toLocaleDateString(undefined,{weekday:'short'}).slice(0,2)}</span><strong>${d.getDate()}</strong></div>`;}el.innerHTML=html;}
+
 const STORAGE_KEY = 'mycycleV2Data';
 let calendarCursor = new Date();
 calendarCursor.setDate(1);
@@ -80,7 +88,7 @@ function renderBars(id,counts,empty){ const el=$(id); const entries=Object.entri
 
 function renderProfile(data){ $('cycleLength').value=data.prefs?.cycleLength||28; $('periodLength').value=data.prefs?.periodLength||5; }
 function renderToday(data){ $('todayLabel').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}); const l=data.logs?.[todayISO()]; selectedMood=l?.mood||null; selectedSymptoms=[...(l?.symptoms||[])]; document.querySelectorAll('#moodButtons button').forEach(b=>b.classList.toggle('selected',b.dataset.mood===selectedMood)); document.querySelectorAll('#symptomChips button').forEach(b=>b.classList.toggle('selected',selectedSymptoms.includes(b.dataset.symptom))); $('flow').value=l?.flow||'None'; $('pain').value=String(l?.pain??0); $('dailyNote').value=l?.note||''; }
-function renderAll(){ const data=getData(); renderHome(data); renderCalendar(data); renderInsights(data); renderProfile(data); renderToday(data); }
+function renderAll(){ applyMonthTheme(); renderDateStrip(); const data=getData(); renderHome(data); renderCalendar(data); renderInsights(data); renderProfile(data); renderToday(data); }
 
 $('prevMonth').addEventListener('click',()=>{calendarCursor.setMonth(calendarCursor.getMonth()-1);renderCalendar(getData())}); $('nextMonth').addEventListener('click',()=>{calendarCursor.setMonth(calendarCursor.getMonth()+1);renderCalendar(getData())});
 
